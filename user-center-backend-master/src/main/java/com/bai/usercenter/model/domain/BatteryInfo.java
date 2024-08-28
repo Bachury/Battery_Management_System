@@ -34,9 +34,14 @@ public class BatteryInfo implements Serializable {
     private String batteryName;
 
     /**
-     * 电池类型
+     * 电池类型（1-锂离子电池）
      */
     private String batteryType;
+
+    /**
+     * 电池数据条数
+     */
+    private Long dataNum;
 
     /**
      * 创建时间
@@ -44,7 +49,7 @@ public class BatteryInfo implements Serializable {
     private Date createTime;
 
     /**
-     * 
+     *
      */
     private Date updateTime;
 

@@ -34,6 +34,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 @RestController
 public class BatteryController {
@@ -55,8 +57,8 @@ public class BatteryController {
 //            throw new BusinessException(ErrorCode.PARAMS_ERROR);
 //        }
 //        // todo: 调用Service实现电池总体信息保存，数据上传等功能
-//        String batteryName = batteryUploadRequest.getBatteryname();
-//        String batteryType = batteryUploadRequest.getBatterytype();
+//        String batteryName = batteryUploadRequest.getbatteryName();
+//        String batteryType = batteryUploadRequest.getbatteryType();
 //        BatteryInfo batteryInfoBaseResponse = batteryInfoService.SaveBatteryInfo(batteryName, batteryType);
 //
 //        // 返回给前端
@@ -110,7 +112,7 @@ public class BatteryController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         boolean b = batteryInfoService.removeById(batteryDeleteRequest.getId());
-        // todo: 还需要删除相关的电池数据信息
+        // todo: 还需要删除battery_data_info里相关的电池数据信息
         return ResultUtils.success(b);
     }
 
@@ -164,6 +166,21 @@ public class BatteryController {
     @PostMapping("/upload")
     public BaseResponse<Boolean> uploadCsv(@RequestParam("file") MultipartFile file, @RequestParam("batteryCode") String batteryCode) throws IOException, CsvException {
         boolean totalResult = true;
+
+        // 校验文件名称是否符合规范
+        String fileName = file.getOriginalFilename();
+        // 正则表达式，匹配"index_"后面的数字
+        Pattern pattern = Pattern.compile("index_(\\d+)");
+        Matcher matcher = pattern.matcher(fileName);
+        int cycle = 0;
+        if (matcher.find()) {
+            // 如果找到匹配项，matcher.group(1)将返回括号内匹配的数字
+            String number = matcher.group(1);
+            cycle = Integer.valueOf(number);
+        } else {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+
         // 解析CSV文件
         try (CSVReader reader = new CSVReader(new InputStreamReader(file.getInputStream()))) {
             List<String[]> rows = reader.readAll();
@@ -174,9 +191,14 @@ public class BatteryController {
                 // 保存到数据库
                 BatteryDataInfo batteryDataInfo = new BatteryDataInfo();
                 batteryDataInfo.setBatteryCode(batteryCode);
-                batteryDataInfo.setVoltage(Double.valueOf(row[3]));
-                batteryDataInfo.setCurrent(Double.valueOf(row[4]));
-                batteryDataInfo.setCapacity(Double.valueOf(row[5]));
+                batteryDataInfo.setAdjacentTimeDifference(Double.valueOf(row[1]));
+                batteryDataInfo.setVoltage(Double.valueOf(row[2]));
+                batteryDataInfo.setCurrent(Double.valueOf(row[3]));
+                batteryDataInfo.setSoc(Double.valueOf(row[4]));
+                batteryDataInfo.setMinTemperature(Double.valueOf(row[5]));
+                batteryDataInfo.setMaxTemperature(Double.valueOf(row[6]));
+                batteryDataInfo.setMileage(Double.valueOf(row[7]));
+                batteryDataInfo.setStartTimeDifference(Double.valueOf(row[8]));
 
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                 LocalDateTime dateTime = LocalDateTime.parse(row[0], formatter);
@@ -190,11 +212,12 @@ public class BatteryController {
                 // 使用Date构造函数创建Date对象
                 Date date = new Date(year - 1900, month - 1, day, hour, minute, second);
                 batteryDataInfo.setCollectTime(date);
-
+                batteryDataInfo.setCycle(cycle);
                 boolean result = batteryDataInfoService.save(batteryDataInfo);
                 totalResult = totalResult&result;
             }
         }
+        // todo:先根据batteryCode在battery_data_info数据表中查询已经存在的数据条数，然后更新battery_info表中相应的数据
         return ResultUtils.success(totalResult);
     }
 

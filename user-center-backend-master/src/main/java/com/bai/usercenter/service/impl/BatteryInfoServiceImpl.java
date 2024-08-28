@@ -1,20 +1,15 @@
 package com.bai.usercenter.service.impl;
 
 import cn.hutool.core.lang.Snowflake;
-import cn.hutool.core.util.IdUtil;
-import com.bai.usercenter.common.BaseResponse;
 import com.bai.usercenter.common.ErrorCode;
-import com.bai.usercenter.common.ResultUtils;
 import com.bai.usercenter.exception.BusinessException;
-import com.bai.usercenter.model.domain.User;
+import com.bai.usercenter.mapper.BatteryInfoMapper;
 import com.bai.usercenter.model.domain.request.BatteryQueryRequest;
 import com.bai.usercenter.utils.CodeUtils;
-import com.bai.usercenter.utils.SqlUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bai.usercenter.model.domain.BatteryInfo;
 import com.bai.usercenter.service.BatteryInfoService;
-import com.bai.usercenter.mapper.BatteryInfoMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 

@@ -60,11 +60,11 @@ class UserCenterApplicationTests {
 //@PostMapping("/battery_data_info/page")
 //public BaseResponse<Page<BatteryDataInfo>> batteryDataInfoByPage(@RequestBody BatteryQueryRequest batteryQueryRequest) {
 //
-//    if (batteryQueryRequest == null || StringUtils.isBlank(batteryQueryRequest.getBatteryCode())) {
+//    if (batteryQueryRequest == null || StringUtils.isBlank(batteryQueryRequest.getbatteryCode())) {
 //        throw new BusinessException(ErrorCode.PARAMS_ERROR);
 //    }
 //    QueryWrapper<BatteryDataInfo> queryWrapper = new QueryWrapper<>();
-//    queryWrapper.eq("batteryCode", batteryQueryRequest.getBatteryCode());
+//    queryWrapper.eq("batteryCode", batteryQueryRequest.getbatteryCode());
 //    Page<BatteryDataInfo> batteryDataInfoPage = batteryDataInfoService.page(new Page<>(batteryQueryRequest.getCurrent(), batteryQueryRequest.getPageSize()),
 //            queryWrapper);
 //    return ResultUtils.success(batteryDataInfoPage);
@@ -91,7 +91,7 @@ class UserCenterApplicationTests {
 //            String[] row = rows.get(i);
 //            // 保存到数据库
 //            BatteryDataInfo batteryDataInfo = new BatteryDataInfo();
-//            batteryDataInfo.setBatteryCode(batteryCode);
+//            batteryDataInfo.setbatteryCode(batteryCode);
 //            batteryDataInfo.setVoltage(Double.valueOf(row[3]));
 //            batteryDataInfo.setCurrent(Double.valueOf(row[4]));
 //            batteryDataInfo.setCapacity(Double.valueOf(row[5]));
@@ -107,7 +107,7 @@ class UserCenterApplicationTests {
 //            int second = dateTime.getSecond();
 //            // 使用Date构造函数创建Date对象
 //            Date date = new Date(year - 1900, month - 1, day, hour, minute, second);
-//            batteryDataInfo.setCollectTime(date);
+//            batteryDataInfo.setcollectTime(date);
 //
 //            boolean result = batteryDataInfoService.save(batteryDataInfo);
 //            totalResult = totalResult&result;

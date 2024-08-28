@@ -86,13 +86,20 @@ declare namespace API {
   };
 
   type BatteryDataInfo = {
+    adjacentTimeDifference?: number;
     batteryCode?: string;
     capacity?: number;
     collectTime?: string;
     createTime?: string;
     current?: number;
+    cycle?: number;
     id?: number;
     isDelete?: number;
+    maxTemperature?: number;
+    mileage?: number;
+    minTemperature?: number;
+    soc?: number;
+    startTimeDifference?: number;
     updateTime?: string;
     voltage?: number;
   };
@@ -106,6 +113,7 @@ declare namespace API {
     batteryName?: string;
     batteryType?: string;
     createTime?: string;
+    dataNum?: number;
     id?: number;
     isDelete?: number;
     updateTime?: string;

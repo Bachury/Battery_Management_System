@@ -7,9 +7,16 @@
     <resultMap id="BaseResultMap" type="com.bai.usercenter.model.domain.BatteryDataInfo">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="batteryCode" column="batteryCode" jdbcType="VARCHAR"/>
+            <result property="cycle" column="cycle" jdbcType="INTEGER"/>
             <result property="voltage" column="voltage" jdbcType="DOUBLE"/>
             <result property="current" column="current" jdbcType="DOUBLE"/>
+            <result property="soc" column="soc" jdbcType="DOUBLE"/>
+            <result property="minTemperature" column="minTemperature" jdbcType="DOUBLE"/>
+            <result property="maxTemperature" column="maxTemperature" jdbcType="DOUBLE"/>
+            <result property="mileage" column="mileage" jdbcType="DOUBLE"/>
             <result property="capacity" column="capacity" jdbcType="DOUBLE"/>
+            <result property="startTimeDifference" column="startTimeDifference" jdbcType="DOUBLE"/>
+            <result property="adjacentTimeDifference" column="adjacentTimeDifference" jdbcType="DOUBLE"/>
             <result property="collectTime" column="collectTime" jdbcType="TIMESTAMP"/>
             <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
@@ -17,8 +24,10 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,batteryCode,voltage,
-        current,capacity,collectTime,
+        id,batteryCode,cycle,voltage,
+        current,soc,minTemperature,
+        maxTemperature,mileage,capacity,
+        startTimeDifference,adjacentTimeDifference,collectTime,
         createTime,updateTime,isDelete
     </sql>
 </mapper>

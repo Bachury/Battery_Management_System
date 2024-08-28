@@ -9,6 +9,7 @@
             <result property="batteryCode" column="batteryCode" jdbcType="VARCHAR"/>
             <result property="batteryName" column="batteryName" jdbcType="VARCHAR"/>
             <result property="batteryType" column="batteryType" jdbcType="VARCHAR"/>
+            <result property="dataNum" column="dataNum" jdbcType="BIGINT"/>
             <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
             <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
@@ -16,7 +17,7 @@
 
     <sql id="Base_Column_List">
         id,batteryCode,batteryName,
-        batteryType,createTime,updateTime,
-        isDelete
+        batteryType,dataNum,createTime,
+        updateTime,isDelete
     </sql>
 </mapper>

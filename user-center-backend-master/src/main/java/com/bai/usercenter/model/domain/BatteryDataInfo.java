@@ -13,8 +13,8 @@ import java.util.Date;
  * 电池数据信息表
  * @TableName battery_data_info
  */
-@TableName(value ="battery_data_info")
 @Data
+@TableName(value ="battery_data_info")
 public class BatteryDataInfo implements Serializable {
     /**
      * id
@@ -28,6 +28,11 @@ public class BatteryDataInfo implements Serializable {
     private String batteryCode;
 
     /**
+     * 循环次数
+     */
+    private Integer cycle;
+
+    /**
      * 电压
      */
     private Double voltage;
@@ -38,9 +43,39 @@ public class BatteryDataInfo implements Serializable {
     private Double current;
 
     /**
+     * SOC
+     */
+    private Double soc;
+
+    /**
+     * 最小温度
+     */
+    private Double minTemperature;
+
+    /**
+     * 最大温度
+     */
+    private Double maxTemperature;
+
+    /**
+     * 里程数
+     */
+    private Double mileage;
+
+    /**
      * 电能
      */
     private Double capacity;
+
+    /**
+     * 开始采集时间差值
+     */
+    private Double startTimeDifference;
+
+    /**
+     * 相邻采集数据时间差值
+     */
+    private Double adjacentTimeDifference;
 
     /**
      * 采集时间
@@ -53,7 +88,7 @@ public class BatteryDataInfo implements Serializable {
     private Date createTime;
 
     /**
-     * 
+     *
      */
     private Date updateTime;
 
@@ -64,5 +99,6 @@ public class BatteryDataInfo implements Serializable {
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
+
 
 }

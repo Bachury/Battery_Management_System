@@ -9,8 +9,9 @@ import {
   ClearOutlined
 } from '@ant-design/icons';
 import type {ActionType, ProColumns} from '@ant-design/pro-components';
-import {ProTable, ProCard} from '@ant-design/pro-components';
+import {ProTable, ProCard, StatisticCard} from '@ant-design/pro-components';
 import '@umijs/max';
+import RcResizeObserver from 'rc-resize-observer';
 import {Button, Card, message, Popconfirm, List, Spin, Badge, Tag, Image, Tooltip} from 'antd';
 import { Modal } from 'antd';
 import React, {useEffect, useRef, useState} from 'react';
@@ -32,6 +33,11 @@ import {
 } from "@/services/user-center/batteryController";
 import BatteryColumns from "@/pages/Admin/Columns/BatteryInfoColumns";
 import Battery from "../../../public/assets/电池.png";
+import DataNum from "../../../public/assets/数据总量.png";
+import BatteryNum from "../../../public/assets/电池接入数量.png";
+import VisitNum from "../../../public/assets/访问量.png";
+
+
 
 
 const BatteryList: React.FC = () => {
@@ -49,7 +55,7 @@ const BatteryList: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
   const actionRefBatteryData = useRef<any>();
-  const [currentRow, setCurrentRow] = useState<API.UserVO>();
+  const [currentRow, setCurrentRow] = useState<API.BatteryInfo>();
   // 添加一个新的状态来控制预览窗口的显示
   const [previewModalOpen, setPreviewModalOpen] = useState<boolean>(false);
   const [file, setFile] = useState<File | null>(null);
@@ -59,11 +65,17 @@ const BatteryList: React.FC = () => {
   const [pageSize] = useState<number>(12);
   const [data, setData] = useState<API.BatteryInfo[]>([]);
   const [showTable, setShowTable] = useState(true);  // 用于切换显示 ProTable 或 Spin 的状态
-
+  const [responsive, setResponsive] = useState(false);
 
   useEffect(() => {
     loadData();
   }, []);
+
+  const imgStyle = {
+    display: 'block',
+    width: 42,
+    height: 42,
+  };
 
   /**
    * @en-US Add node
@@ -108,7 +120,7 @@ const BatteryList: React.FC = () => {
    *
    * @param fields
    */
-  const handleUpdate = async (fields: API.UserUpdateRequest) => {
+  const handleUpdate = async (fields: API.BatteryUpdateRequest) => {
     const hide = message.loading('修改中');
     try {
       const res = await updateBatteryUsingPost({id: currentRow?.id, ...fields});
@@ -266,11 +278,19 @@ const BatteryList: React.FC = () => {
   };
 
   const confirm = async () => {
-    await handleRemove(currentRow as API.UserVO);
+    await handleRemove(currentRow as API.BatteryInfo);
   };
 
   const cancel = () => {
     message.success('取消成功');
+  };
+
+  const getBatteryDataCount = () => {
+    let count = 0;
+    for (let i = 0; i < data.length; i++) {
+      count = count + parseInt(data[i].dataNum);
+    }
+    return count;
   };
 
   const columns: ProColumns<API.BatteryInfo>[] = [
@@ -348,18 +368,81 @@ const BatteryList: React.FC = () => {
   ];
   return (
     <div>
+      <RcResizeObserver
+        key="resize-observer"
+        onResize={(offset) => {
+          setResponsive(offset.width < 596);
+        }}
+      >
+        <StatisticCard.Group direction={responsive ? 'column' : 'row'}>
+          <StatisticCard
+            statistic={{
+              title: '电池接入数量',
+              value: data.length,
+              tip: "test",
+              icon: (
+                <img
+                  style={imgStyle}
+                  src={BatteryNum}
+                  alt="icon"
+                />
+              ),
+            }}
+          />
+          <StatisticCard
+            statistic={{
+              title: '电池数据总量',
+              value: getBatteryDataCount(),
+              icon: (
+                <img
+                  style={imgStyle}
+                  src={DataNum}
+                  alt="icon"
+                />
+              ),
+            }}
+          />
+          <StatisticCard
+            statistic={{
+              title: '今日网站浏览量',
+              value: 5,
+              icon: (
+                <img
+                  style={imgStyle}
+                  src={VisitNum}
+                  alt="icon"
+                />
+              ),
+            }}
+          />
+          <StatisticCard
+            statistic={{
+              title: '网站浏览总量',
+              value: 200,
+              icon: (
+                <img
+                  style={imgStyle}
+                  src={VisitNum}
+                  alt="icon"
+                />
+              ),
+            }}
+          />
+        </StatisticCard.Group>
+      </RcResizeObserver>
+      <br/>
       <Button
         onClick={() => setShowTable(!showTable)}  // 切换显示状态
         style={{ marginBottom: 16 }}
       >
-        切换{showTable ? '列表' : '表格'}
+        切换{showTable ? '卡片' : '表格'}
       </Button>
       <Card>
         {showTable ? (
           <ProTable<API.BatteryInfo>
             headerTitle={'电池信息管理'}
             actionRef={actionRef}
-            rowKey="user"
+            rowKey="battery"
             loading={loading}
             search={{
               labelWidth: 120,
@@ -453,7 +536,7 @@ const BatteryList: React.FC = () => {
                       actionRefBatteryData.current?.reload();
                       handlePreview(item);
                     }}>
-                      <Badge count={1} overflowCount={999999999} color='#eb4d4b'>
+                      <Badge count={item.dataNum} overflowCount={999999999} color='#eb4d4b'>
                         <Image style={{ width: 80, borderRadius: 8, marginLeft: 10 }}
                                src={Battery}
                                preview={false}
@@ -514,7 +597,7 @@ const BatteryList: React.FC = () => {
           value={currentRow}
           onOpenChange={handleUpdateModalOpen}
           onSubmit={async (value) => {
-            const success = await handleUpdate(value as API.UserVO);
+            const success = await handleUpdate(value as API.BatteryInfo);
             if (success) {
               handleUpdateModalOpen(false);
               if (actionRef.current) {
