@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bai.usercenter.mapper.BatteryDataInfoMapper">
+
+    <resultMap id="BaseResultMap" type="com.bai.usercenter.model.domain.BatteryDataInfo">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="batteryCode" column="batteryCode" jdbcType="VARCHAR"/>
+            <result property="voltage" column="voltage" jdbcType="DOUBLE"/>
+            <result property="current" column="current" jdbcType="DOUBLE"/>
+            <result property="capacity" column="capacity" jdbcType="DOUBLE"/>
+            <result property="collectTime" column="collectTime" jdbcType="TIMESTAMP"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,batteryCode,voltage,
+        current,capacity,collectTime,
+        createTime,updateTime,isDelete
+    </sql>
+</mapper>
