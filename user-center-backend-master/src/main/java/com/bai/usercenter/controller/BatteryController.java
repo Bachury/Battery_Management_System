@@ -111,8 +111,15 @@ public class BatteryController {
         if (batteryDeleteRequest == null || batteryDeleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        boolean b = batteryInfoService.removeById(batteryDeleteRequest.getId());
         // todo: 还需要删除battery_data_info里相关的电池数据信息
+        QueryWrapper<BatteryInfo> queryWrapperInfo = new QueryWrapper<>();
+        queryWrapperInfo.eq("id", batteryDeleteRequest.getId());
+        BatteryInfo batteryInfo = batteryInfoService.getOne(queryWrapperInfo);
+        String batteryCode = batteryInfo.getBatteryCode();
+        QueryWrapper<BatteryDataInfo> queryWrapperDataInfo = new QueryWrapper<>();
+        queryWrapperDataInfo.eq("batteryCode", batteryCode);
+        batteryDataInfoService.remove(queryWrapperDataInfo);
+        boolean b = batteryInfoService.removeById(batteryDeleteRequest.getId());
         return ResultUtils.success(b);
     }
 
@@ -218,6 +225,14 @@ public class BatteryController {
             }
         }
         // todo:先根据batteryCode在battery_data_info数据表中查询已经存在的数据条数，然后更新battery_info表中相应的数据
+        QueryWrapper<BatteryDataInfo> queryWrapperDataInfo = new QueryWrapper<>();
+        queryWrapperDataInfo.eq("batteryCode", batteryCode);
+        Long count = batteryDataInfoService.count(queryWrapperDataInfo);
+        QueryWrapper<BatteryInfo> queryWrapperInfo = new QueryWrapper<>();
+        queryWrapperInfo.eq("batteryCode", batteryCode);
+        BatteryInfo batteryInfo = batteryInfoService.getOne(queryWrapperInfo);
+        batteryInfo.setDataNum(count);
+        batteryInfoService.updateById(batteryInfo);
         return ResultUtils.success(totalResult);
     }
 
