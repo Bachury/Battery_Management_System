@@ -9,10 +9,10 @@ import {
   ClearOutlined
 } from '@ant-design/icons';
 import type {ActionType, ProColumns} from '@ant-design/pro-components';
-import {ProTable, ProCard, StatisticCard} from '@ant-design/pro-components';
+import {ProTable, ProCard, StatisticCard, ProFormDigitRange} from '@ant-design/pro-components';
 import '@umijs/max';
 import RcResizeObserver from 'rc-resize-observer';
-import {Button, Card, message, Popconfirm, List, Spin, Badge, Tag, Image, Tooltip} from 'antd';
+import {Button, Card, message, Popconfirm, List, Spin, Badge, Tag, Image, Tooltip, Input} from 'antd';
 import { Modal } from 'antd';
 import React, {useEffect, useRef, useState} from 'react';
 import ModalForm from "@/pages/Admin/Components/ModalForm";
@@ -29,7 +29,10 @@ import {
   updateBatteryUsingPost,
   addBatteryUsingPost,
   uploadCsvUsingPost,
-  batteryDataInfoByPageUsingPost
+  batteryDataInfoByPageUsingPost,
+  downloadCsvUsingPost,
+  deleteCsvUsingPost,
+  generateCsvUsingPost
 } from "@/services/user-center/batteryController";
 import BatteryColumns from "@/pages/Admin/Columns/BatteryInfoColumns";
 import Battery from "../../../public/assets/电池.png";
@@ -66,6 +69,8 @@ const BatteryList: React.FC = () => {
   const [data, setData] = useState<API.BatteryInfo[]>([]);
   const [showTable, setShowTable] = useState(true);  // 用于切换显示 ProTable 或 Spin 的状态
   const [responsive, setResponsive] = useState(false);
+  const [rangeQuery, setRangeQuery] = useState(null);
+
 
   useEffect(() => {
     loadData();
@@ -234,9 +239,9 @@ const BatteryList: React.FC = () => {
           rules={[{ required: true, message: 'Please upload a file' }]}
         />
 
-        <Button type="primary" htmlType="submit">
-          Upload
-        </Button>
+        {/*<Button type="primary" htmlType="submit">*/}
+        {/*  Upload*/}
+        {/*</Button>*/}
       </ProForm>
     );
   };
@@ -275,6 +280,18 @@ const BatteryList: React.FC = () => {
       message.error('删除失败', error.message);
       return false;
     }
+  };
+
+  const handleDownload = async () => {
+    // Range Query String
+    const cycleRangeQueryString = rangeQuery ? `${rangeQuery[0]}-${rangeQuery[1]}` : '';
+    // 生成csv
+    const res = await generateCsvUsingPost({batteryCode:currentBatteryCode,cycleRange:cycleRangeQueryString});
+    // 开始下载
+    await downloadCsvUsingPost({filePath:res.data});
+    // 删除临时文件
+    await deleteCsvUsingPost({filePath:res.data});
+
   };
 
   const confirm = async () => {
@@ -318,14 +335,14 @@ const BatteryList: React.FC = () => {
         >
           导入数据
         </a>,
-        <a
-          key="download"
-          onClick={() => {
-            setCurrentBatteryCode(record.batteryCode)
-          }}
-        >
-          下载数据
-        </a>,
+        // <a
+        //   key="download"
+        //   onClick={() => {
+        //     setCurrentBatteryCode(record.batteryCode)
+        //   }}
+        // >
+        //   下载数据
+        // </a>,
         <a
           key="dataprocess"
           onClick={() => {
@@ -508,11 +525,11 @@ const BatteryList: React.FC = () => {
                         handleOpenUploadModal();
                       }} />
                     </Tooltip>,
-                    <Tooltip title="下载数据" key="download">
-                      <DownloadOutlined onClick={() => {
-                        setCurrentBatteryCode(item.batteryCode);
-                      }} />
-                    </Tooltip>,
+                    // <Tooltip title="下载数据" key="download">
+                    //   <DownloadOutlined onClick={() => {
+                    //     setCurrentBatteryCode(item.batteryCode);
+                    //   }} />
+                    // </Tooltip>,
                     <Tooltip title="删除" key="delete">
                       <DeleteOutlined onClick={async () => {
                         setCurrentRow(item);
@@ -617,24 +634,54 @@ const BatteryList: React.FC = () => {
           footer={null}
           width={1200}
         >
+
+          <div style={{display: 'flex', marginBottom: '16px'}}>
+            {/* Range Query Bar */}
+            <ProFormDigitRange
+              label="循环次数范围"
+              name="range-query"
+              separator="-"
+              placeholder={['最小值', '最大值']}
+              separatorWidth={60}
+              style={{marginRight: '16px', height: '32px'}} // Adjust height to match buttons
+              onChange={(values) => {
+                setRangeQuery(values); // Update state with the selected range
+              }}
+            />
+            <Button
+              type="primary"
+              onClick={handleDownload}
+              style={{marginLeft: '16px', marginRight: '16px', height: '32px'}} // Ensure same height as the ProFormDigitRange
+            >
+              查询数据
+            </Button>
+            <Button
+              type="primary"
+              onClick={handleDownload}
+              style={{height: '32px'}} // Ensure same height as the ProFormDigitRange
+            >
+              导出数据
+            </Button>
+          </div>
+
           <ProTable<API.BatteryDataInfo>
             columns={BatteryDataColumns.map(column => ({
               ...column,
               render: (text, record, index) => (
-                <td style={{ height: '15px', lineHeight: '15px' }}>
+                <td style={{height: '15px', lineHeight: '15px'}}>
                   {text}
                 </td>
               ),
             }))}
-            // dataSource={previewData ? [previewData] : []}
             rowKey="id"
             pagination={{defaultPageSize: 10}}
             search={false}
-            actionRef={actionRefBatteryData}  // 绑定actionRef
+            actionRef={actionRefBatteryData}
             request={async (params) => {
               if (!currentBatteryCode) {
-                return { data: [], success: false };  // 初始时不加载数据
+                return {data: [], success: false};
               }
+
               const response = await batteryDataInfoByPageUsingPost({
                 batteryCode: currentBatteryCode,
                 pageSize: params.pageSize,

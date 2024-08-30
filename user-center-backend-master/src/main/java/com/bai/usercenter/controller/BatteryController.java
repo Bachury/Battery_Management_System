@@ -7,10 +7,7 @@ import com.bai.usercenter.common.ResultUtils;
 import com.bai.usercenter.exception.BusinessException;
 import com.bai.usercenter.model.domain.BatteryDataInfo;
 import com.bai.usercenter.model.domain.BatteryInfo;
-import com.bai.usercenter.model.domain.request.BatteryAddRequest;
-import com.bai.usercenter.model.domain.request.BatteryDeleteRequest;
-import com.bai.usercenter.model.domain.request.BatteryQueryRequest;
-import com.bai.usercenter.model.domain.request.BatteryUpdateRequest;
+import com.bai.usercenter.model.domain.request.*;
 import com.bai.usercenter.service.BatteryDataInfoService;
 import com.bai.usercenter.service.BatteryInfoService;
 import com.bai.usercenter.utils.CodeUtils;
@@ -20,22 +17,32 @@ import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.text.SimpleDateFormat;
 
 @RestController
 public class BatteryController {
@@ -235,5 +242,104 @@ public class BatteryController {
         batteryInfoService.updateById(batteryInfo);
         return ResultUtils.success(totalResult);
     }
+
+    /**
+     * 生成csv数据
+     */
+    @PostMapping("/generateCSV")
+    public BaseResponse<String> generateCsv(@RequestBody BatteryDownloadRequest request){
+        //按照soc范围
+        String socRange = request.getSocRange();
+        //按照cycle范围
+        String cycleRange = request.getCycleRange();
+        //按照时间范围
+        String timeRange = request.getTimeRange();
+        String batteryCode = request.getBatteryCode();
+
+        try {
+            // 根据范围查询数据
+            List<BatteryDataInfo> data = batteryDataInfoService.queryBatteryData(cycleRange, batteryCode);
+
+            // 生成一个csv的临时文件，然后存储在某个位置上
+            File tempFile = File.createTempFile("battery_data_", ".csv");
+            tempFile.deleteOnExit(); // 确保 JVM 退出时删除文件
+
+            // 查询数据库，将数据写入 CSV 文件
+            try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.UTF_8)) {
+                writer.append("Cycle,Voltage,Current,SOC,Min Temperature,Max Temperature,Mileage,Capacity,Start Time Difference,Adjacent Time Difference,Collect Time\n");
+
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                for (BatteryDataInfo entry : data) {
+                    writer.append(entry.getCycle() != null ? entry.getCycle().toString() : "0").append(",")
+                            .append(entry.getVoltage() != null ? entry.getVoltage().toString() : "0").append(",")
+                            .append(entry.getCurrent() != null ? entry.getCurrent().toString() : "0").append(",")
+                            .append(entry.getSoc() != null ? entry.getSoc().toString() : "0").append(",")
+                            .append(entry.getMinTemperature() != null ? entry.getMinTemperature().toString() : "0").append(",")
+                            .append(entry.getMaxTemperature() != null ? entry.getMaxTemperature().toString() : "0").append(",")
+                            .append(entry.getMileage() != null ? entry.getMileage().toString() : "0").append(",")
+                            .append(entry.getCapacity() != null ? entry.getCapacity().toString() : "0").append(",")
+                            .append(entry.getStartTimeDifference() != null ? entry.getStartTimeDifference().toString() : "0").append(",")
+                            .append(entry.getAdjacentTimeDifference() != null ? entry.getAdjacentTimeDifference().toString() : "0").append(",");
+
+                    if (entry.getCollectTime() != null) {
+                        writer.append(dateFormat.format(entry.getCollectTime())).append(",");
+                    } else {
+                        writer.append("0"); // Write "0" if collectTime is null
+                    }
+                    writer.append("\n");
+                }
+            }
+
+            // 生成文件下载的URL
+            String fileUrl = tempFile.getName();
+            // System.out.println(tempFile.getAbsolutePath());
+            // 获取临时文件存储位置，返回给前端
+            return ResultUtils.success(fileUrl);
+        } catch (Exception e) {
+            return ResultUtils.error(ErrorCode.SYSTEM_ERROR);
+        }
+
+    }
+
+    /**
+     * 下载csv数据
+     */
+    @PostMapping("/download")
+    public ResponseEntity<org.springframework.core.io.Resource> downloadCsv(@RequestBody BatteryDownloadRequest request) {
+        String filename = request.getFilePath();
+        try {
+            // 获取文件路径
+            Path filePath = Paths.get(System.getProperty("java.io.tmpdir"), filename);
+
+            // 将文件作为资源返回
+            org.springframework.core.io.Resource resource = new UrlResource(filePath.toUri());
+
+            if (resource.exists()) {
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                        .body(resource);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/deleteCSV")
+    public BaseResponse<String> deleteCsv(@RequestBody BatteryDownloadRequest request){
+        String filename = request.getFilePath();
+        try {
+            // 获取文件路径
+            Path filePath = Paths.get(System.getProperty("java.io.tmpdir"), filename);
+            // 删除文件
+            Files.deleteIfExists(filePath);
+            return ResultUtils.success("文件下载中");
+        } catch (Exception e) {
+            return ResultUtils.error(ErrorCode.SYSTEM_ERROR);
+        }
+    }
+
 
 }

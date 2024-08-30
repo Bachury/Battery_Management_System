@@ -28,17 +28,24 @@ export const requestConfig: RequestConfig = {
   // 响应拦截器
   responseInterceptors: [
     (response) => {
-      // 拦截响应数据，进行个性化处理
+      // 检查响应的 Content-Type 是否为文件类型
+      const contentType = response.headers['content-type'];
+
+      if (contentType && contentType.includes('application/octet-stream')) {
+        // 针对文件下载的处理
+        return response;
+      }
+
+      // 拦截非文件下载的响应数据，进行个性化处理
       const { data } = response as unknown as ResponseStructure;
       console.log('data', data);
       if (data.code == 0) {
         return response;
-      }else{
-        // throw new Error(data.message);
+      } else {
+        // 异常情况处理
         message.error(data.message);
         return response;
       }
-
     },
   ],
 };

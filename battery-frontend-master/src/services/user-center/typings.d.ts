@@ -62,6 +62,13 @@ declare namespace API {
     message?: string;
   };
 
+  type BaseResponseString_ = {
+    code?: number;
+    data?: string;
+    description?: string;
+    message?: string;
+  };
+
   type BaseResponseUser_ = {
     code?: number;
     data?: User;
@@ -108,6 +115,14 @@ declare namespace API {
     id?: number;
   };
 
+  type BatteryDownloadRequest = {
+    batteryCode?: string;
+    cycleRange?: string;
+    filePath?: string;
+    socRange?: string;
+    timeRange?: string;
+  };
+
   type BatteryInfo = {
     batteryCode?: string;
     batteryName?: string;
@@ -141,6 +156,24 @@ declare namespace API {
     sortOrder?: string;
   };
 
+  type File = {
+    absolute?: boolean;
+    absoluteFile?: File;
+    absolutePath?: string;
+    canonicalFile?: File;
+    canonicalPath?: string;
+    directory?: boolean;
+    file?: boolean;
+    freeSpace?: number;
+    hidden?: boolean;
+    name?: string;
+    parent?: string;
+    parentFile?: File;
+    path?: string;
+    totalSpace?: number;
+    usableSpace?: number;
+  };
+
   type getUserByIdUsingGETParams = {
     /** id */
     id?: number;
@@ -154,6 +187,8 @@ declare namespace API {
   type IdRequest = {
     id?: number;
   };
+
+  type InputStream = true;
 
   type listUserUsingGETParams = {
     current?: number;
@@ -223,6 +258,17 @@ declare namespace API {
     total?: number;
   };
 
+  type Resource = {
+    description?: string;
+    file?: File;
+    filename?: string;
+    inputStream?: InputStream;
+    open?: boolean;
+    readable?: boolean;
+    uri?: URI;
+    url?: URL;
+  };
+
   type searchUsersUsingGETParams = {
     /** userName */
     userName?: string;
@@ -231,6 +277,40 @@ declare namespace API {
   type uploadCsvUsingPOSTParams = {
     /** batteryCode */
     batteryCode: string;
+  };
+
+  type URI = {
+    absolute?: boolean;
+    authority?: string;
+    fragment?: string;
+    host?: string;
+    opaque?: boolean;
+    path?: string;
+    port?: number;
+    query?: string;
+    rawAuthority?: string;
+    rawFragment?: string;
+    rawPath?: string;
+    rawQuery?: string;
+    rawSchemeSpecificPart?: string;
+    rawUserInfo?: string;
+    scheme?: string;
+    schemeSpecificPart?: string;
+    userInfo?: string;
+  };
+
+  type URL = {
+    authority?: string;
+    content?: Record<string, any>;
+    defaultPort?: number;
+    file?: string;
+    host?: string;
+    path?: string;
+    port?: number;
+    protocol?: string;
+    query?: string;
+    ref?: string;
+    userInfo?: string;
   };
 
   type User = {
