@@ -5,12 +5,12 @@ import cn.hutool.core.util.IdUtil;
 
 public class CodeUtils {
 
-    private static Snowflake snowflake = IdUtil.getSnowflake();
+    private static SnowflakeIdGenerator snowflakeIdGenerator = new SnowflakeIdGenerator(1L);
 
     private CodeUtils() {}
 
-    public static Snowflake getInstance(){
-        return snowflake;
+    public static SnowflakeIdGenerator getInstance(){
+        return snowflakeIdGenerator;
     }
 
 }

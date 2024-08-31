@@ -11,6 +11,7 @@ import com.bai.usercenter.model.domain.request.*;
 import com.bai.usercenter.service.BatteryDataInfoService;
 import com.bai.usercenter.service.BatteryInfoService;
 import com.bai.usercenter.utils.CodeUtils;
+import com.bai.usercenter.utils.SnowflakeIdGenerator;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.opencsv.CSVReader;
@@ -144,7 +145,7 @@ public class BatteryController {
         }
         BatteryInfo batteryInfo = new BatteryInfo();
         BeanUtils.copyProperties(batteryAddRequest, batteryInfo);
-        Snowflake snowflake = CodeUtils.getInstance();
+        SnowflakeIdGenerator snowflake = CodeUtils.getInstance();
         long batteryCode = snowflake.nextId();
         batteryInfo.setBatteryCode(String.valueOf(batteryCode));
         boolean result = batteryInfoService.save(batteryInfo);

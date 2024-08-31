@@ -6,6 +6,7 @@ import com.bai.usercenter.exception.BusinessException;
 import com.bai.usercenter.mapper.BatteryInfoMapper;
 import com.bai.usercenter.model.domain.request.BatteryQueryRequest;
 import com.bai.usercenter.utils.CodeUtils;
+import com.bai.usercenter.utils.SnowflakeIdGenerator;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bai.usercenter.model.domain.BatteryInfo;
@@ -29,8 +30,7 @@ public class BatteryInfoServiceImpl extends ServiceImpl<BatteryInfoMapper, Batte
         batteryInfo.setBatteryType(batteryType);
         // 创建雪花算法对象，默认机器id提供者使用自动获取IP地址
         // 成单例模式
-        Snowflake snowflake = CodeUtils.getInstance();
-
+        SnowflakeIdGenerator snowflake = CodeUtils.getInstance();
         // 获取下一个ID
         long batteryCode = snowflake.nextId();
         batteryInfo.setBatteryCode(String.valueOf(batteryCode));
