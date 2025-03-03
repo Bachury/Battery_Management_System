@@ -14,6 +14,7 @@ export default [
     ],
   },
   { path: '/battery', name: '电池信息页', icon: 'ApiOutlined', component: './BatteryInfoList' },
+  { path: '/algorithm', name: '电池算法', icon: 'ApiOutlined', component: './BatteryInfoList' },
   {
     path: '/admin',
     name: '管理页',

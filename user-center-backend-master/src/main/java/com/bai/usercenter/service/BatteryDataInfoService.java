@@ -14,4 +14,5 @@ import java.util.List;
 public interface BatteryDataInfoService extends IService<BatteryDataInfo> {
     public List<BatteryDataInfo> queryBatteryData(String cycleRange, String batteryCode);
 
+    public List<List<BatteryDataInfo>> queryBatteryDataByCycles(String cycleRange, String batteryCode);
 }

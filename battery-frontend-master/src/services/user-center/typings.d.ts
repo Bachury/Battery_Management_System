@@ -1,4 +1,11 @@
 declare namespace API {
+  type BaseResponseBatteryInfo_ = {
+    code?: number;
+    data?: BatteryInfo;
+    description?: string;
+    message?: string;
+  };
+
   type BaseResponseBoolean_ = {
     code?: number;
     data?: boolean;
@@ -124,13 +131,20 @@ declare namespace API {
   };
 
   type BatteryInfo = {
+    abnormalChargingMode?: number;
     batteryCode?: string;
     batteryName?: string;
     batteryType?: string;
     createTime?: string;
     dataNum?: number;
+    dataQualityStatus?: number;
     id?: number;
     isDelete?: number;
+    noneDataNum?: number;
+    qualifiedRate?: number;
+    socImgPath?: string;
+    unCompleteness?: number;
+    unConsistency?: number;
     updateTime?: string;
   };
 
@@ -146,14 +160,21 @@ declare namespace API {
   };
 
   type BatteryUpdateRequest = {
+    abnormalChargingMode?: number;
     batteryCode?: string;
     batteryName?: string;
     batteryType?: string;
     current?: number;
+    dataQualityStatus?: number;
     id?: number;
+    noneDataNum?: number;
     pageSize?: number;
+    qualifiedRate?: number;
+    socImgPath?: string;
     sortField?: string;
     sortOrder?: string;
+    unCompleteness?: number;
+    unConsistency?: number;
   };
 
   type File = {

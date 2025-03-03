@@ -152,6 +152,25 @@ public class BatteryController {
         return ResultUtils.success(batteryInfo.getId());
     }
 
+
+    /**
+     * 创建电池信息
+     *
+     * @param batteryQueryRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/query")
+    public BaseResponse<BatteryInfo> queryBattery(@RequestBody BatteryQueryRequest batteryQueryRequest, HttpServletRequest request) {
+        if (batteryQueryRequest == null || StringUtils.isBlank(batteryQueryRequest.getBatteryCode())) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        QueryWrapper<BatteryInfo> queryWrapperInfo = new QueryWrapper<>();
+        queryWrapperInfo.eq("batteryCode", batteryQueryRequest.getBatteryCode());
+        BatteryInfo batteryInfo = batteryInfoService.getOne(queryWrapperInfo);
+        return ResultUtils.success(batteryInfo);
+    }
+
     /**
      * 根据电池编码分页查询电池数据
      *
@@ -326,6 +345,70 @@ public class BatteryController {
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * 按照循环生成csv数据
+     */
+    @PostMapping("/generateCSVByCycle")
+    public BaseResponse<Boolean> generateCSVByCycle(@RequestBody BatteryDownloadRequest request){
+        //按照soc范围
+        String socRange = request.getSocRange();
+        //按照cycle范围
+        String cycleRange = request.getCycleRange();
+        //按照时间范围
+        String timeRange = request.getTimeRange();
+        String batteryCode = request.getBatteryCode();
+        // todo: 改正魔法值
+        String filePath = "D:/BatteryData/downloadRawData/";
+
+        try {
+            // 根据范围查询数据
+            List<List<BatteryDataInfo>> data = batteryDataInfoService.queryBatteryDataByCycles(cycleRange, batteryCode);
+            // 创建BatteryCode文件夹
+            File batteryCodeDir = new File(filePath + batteryCode);
+            if (!batteryCodeDir.exists()) {
+                batteryCodeDir.mkdirs();
+            } else {
+                // todo: 数据已经导出，请勿重复
+                return ResultUtils.success(false);
+            }
+            // 遍历每个cycle的数据
+            for (int i = 0; i < data.size(); i++) {
+                List<BatteryDataInfo> cycleData = data.get(i);
+                Integer cycle = cycleData.get(0).getCycle();
+                // 创建CSV文件
+                File csvFile = new File(batteryCodeDir, "chargedata_index_" + cycle + ".csv");
+
+                // 将数据写入CSV文件
+                try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(csvFile), StandardCharsets.UTF_8)) {
+                    writer.append("time,time1,voltage,current,soc,min_temp,max_temp,mileage,time2\n");
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    for (BatteryDataInfo entry : cycleData) {
+                        if (entry.getCollectTime() != null) {
+                            writer.append(dateFormat.format(entry.getCollectTime())).append(",");
+                        } else {
+                            writer.append("0"); // Write "0" if collectTime is null
+                        }
+                        writer.append(entry.getAdjacentTimeDifference() != null ? entry.getAdjacentTimeDifference().toString() : "0").append(",")
+                                .append(entry.getVoltage() != null ? entry.getVoltage().toString() : "0").append(",")
+                                .append(entry.getCurrent() != null ? entry.getCurrent().toString() : "0").append(",")
+                                .append(entry.getSoc() != null ? entry.getSoc().toString() : "0").append(",")
+                                .append(entry.getMinTemperature() != null ? entry.getMinTemperature().toString() : "0").append(",")
+                                .append(entry.getMaxTemperature() != null ? entry.getMaxTemperature().toString() : "0").append(",")
+                                .append(entry.getMileage() != null ? entry.getMileage().toString() : "0").append(",")
+                                .append(entry.getStartTimeDifference() != null ? entry.getStartTimeDifference().toString() : "0").append(",");
+
+
+                        writer.append("\n");
+                    }
+                }
+            }
+            return ResultUtils.success(true);
+        } catch (Exception e) {
+            return ResultUtils.error(ErrorCode.SYSTEM_ERROR);
+        }
+
     }
 
     @PostMapping("/deleteCSV")

@@ -48,6 +48,34 @@ public class BatteryDataInfoServiceImpl extends ServiceImpl<BatteryDataInfoMappe
         return batteryDataInfos;
     }
 
+    @Override
+    public List<List<BatteryDataInfo>> queryBatteryDataByCycles(String cycleRange, String batteryCode) {
+        // 解析循环次数范围
+        String[] cycleParts = cycleRange.split("-");
+        Integer cycleStart = Integer.parseInt(cycleParts[0]);
+        Integer cycleEnd = Integer.parseInt(cycleParts[1]);
+        // 校验cycle范围是否合理
+        if(cycleStart>cycleEnd || cycleStart<=0 || cycleEnd<=0){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+
+//        List<Integer> cycles = new ArrayList();
+//        for(int i=cycleStart;i<=cycleEnd;i++){
+//            cycles.add(i);
+//        }
+        List<List<BatteryDataInfo>> res = new ArrayList<>();
+        for(int i=cycleStart;i<=cycleEnd;i++){
+            // 构造查询条件
+            QueryWrapper<BatteryDataInfo> queryWrapperDataInfo = new QueryWrapper<>();
+            queryWrapperDataInfo.eq("batteryCode", batteryCode);
+            queryWrapperDataInfo.eq("cycle", i);
+            List<BatteryDataInfo> batteryDataInfos = this.list(queryWrapperDataInfo);
+            res.add(batteryDataInfos);
+        }
+
+        return res;
+    }
+
 }
 
 

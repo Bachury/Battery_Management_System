@@ -67,7 +67,7 @@ export async function deleteCsvUsingPost(
   body: API.BatteryDownloadRequest,
   options?: { [key: string]: any },
 ) {
-  return request<any>('/api/deleteCSV', {
+  return request<API.BaseResponseString_>('/api/deleteCSV', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -78,50 +78,19 @@ export async function deleteCsvUsingPost(
 }
 
 /** downloadCsv POST /api/download */
-// export async function downloadCsvUsingPost(
-//   body: API.BatteryDownloadRequest,
-//   options?: { [key: string]: any },
-// ) {
-//   return request<API.Resource>('/api/download', {
-//     method: 'POST',
-//     headers: {
-//       'Content-Type': 'application/json',
-//     },
-//     data: body,
-//     ...(options || {}),
-//   });
-// }
 export async function downloadCsvUsingPost(
   body: API.BatteryDownloadRequest,
   options?: { [key: string]: any },
 ) {
-  const response = await request<API.Resource>('/api/download', {
+  return request<API.Resource>('/api/download', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     data: body,
     ...(options || {}),
-    responseType: 'blob',  // 指定响应类型为 blob
   });
-
-  // 检查响应是否有效
-  if (response) {
-    const blob = new Blob([response], { type: 'text/csv' });
-    const downloadUrl = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.download = body.filePath;  // 指定下载文件的默认名称
-    document.body.appendChild(link);
-    link.click();
-    link.remove();  // 移除临时生成的链接
-  } else {
-    // 处理错误情况
-    console.error('Download failed');
-  }
 }
-
-
 
 /** generateCsv POST /api/generateCSV */
 export async function generateCsvUsingPost(
@@ -129,6 +98,36 @@ export async function generateCsvUsingPost(
   options?: { [key: string]: any },
 ) {
   return request<API.BaseResponseString_>('/api/generateCSV', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** generateCSVByCycle POST /api/generateCSVByCycle */
+export async function generateCsvByCycleUsingPost(
+  body: API.BatteryDownloadRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseBoolean_>('/api/generateCSVByCycle', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** queryBattery POST /api/query */
+export async function queryBatteryUsingPost(
+  body: API.BatteryQueryRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseBatteryInfo_>('/api/query', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

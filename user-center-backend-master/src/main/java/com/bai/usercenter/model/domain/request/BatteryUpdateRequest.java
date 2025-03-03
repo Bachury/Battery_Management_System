@@ -35,6 +35,41 @@ public class BatteryUpdateRequest extends PageRequest implements Serializable {
      */
     private String batteryType;
 
+    /**
+     * SOC分析图片地址
+     */
+    private String socImgPath;
+
+    /**
+     * 电池数据检定状态
+     */
+    private Integer dataQualityStatus;
+
+    /**
+     * 电池数据检定完备性不通过数量
+     */
+    private Integer unCompleteness;
+
+    /**
+     * 电池数据检定一致性不通过数量
+     */
+    private Integer unConsistency;
+
+    /**
+     * 电池数据检定充电模式异常数量
+     */
+    private Integer abnormalChargingMode;
+
+    /**
+     * 电池数据检定空数据数量
+     */
+    private Integer noneDataNum;
+
+    /**
+     * 电池数据检定合格数量比例
+     */
+    private Double qualifiedRate;
+
 
 
     @TableField(exist = false)

@@ -93,6 +93,22 @@ export const BatteryColumns: ProColumns<API.BatteryInfo>[] = [
     width: 100,
   },
   {
+    title: '检定状态',
+    dataIndex: 'dataQualityStatus',
+    filters: true,
+    onFilter: true,
+    key: 'dataQualityStatus',
+    width: 100,
+    render: (_, record) => {
+      const statusMap = {
+        '-1': '未检定',
+        '0': '检定合格',
+        '1': '检定不合格',
+      };
+      return statusMap[record.dataQualityStatus?.toString()] || '未知状态';
+    },
+  },
+  {
     title: '更新时间',
     dataIndex: 'updateTime',
     valueType: 'dateTime',

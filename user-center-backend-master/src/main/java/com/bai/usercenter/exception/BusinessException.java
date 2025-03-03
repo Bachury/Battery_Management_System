@@ -7,7 +7,7 @@ import com.bai.usercenter.common.ErrorCode;
  *
 
  */
-public class BusinessException extends RuntimeException {
+public class   BusinessException extends RuntimeException {
 
     /**
      * 异常码

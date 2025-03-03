@@ -54,7 +54,17 @@ create table battery_info
     batteryName  varchar(256)                       null  comment '电池名称',
     batteryType  varchar(256)                       null  comment '电池类型（1-锂离子电池）',
     dataNum      bigint   default 0                 not null  comment '电池数据条数',
+    socImgPath   varchar(256)                       null  comment 'SOC分析图片',
+    dataQualityStatus  tinyint  default -1          not null  comment '电池数据检定状态',
+    unCompleteness  bigint                          null  comment '电池数据检定完备性不通过数量',
+    unConsistency   bigint                          null  comment '电池数据检定一致性不通过数量',
+    abnormalChargingMode   bigint                   null  comment '电池数据检定充电模式异常数量',
+    noneDataNum   bigint                            null  comment '电池数据检定空数据数量',
+    qualifiedRate float8                            null  comment '电池数据检定合格数量比例',
     createTime   datetime default CURRENT_TIMESTAMP null comment '创建时间',
     updateTime   datetime default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP,
-    isDelete     tinyint  default 0                 not null comment '是否删除')
+    isDelete     tinyint  default 0                 not null comment '是否删除'
+)
     comment '电池信息表';
+
+
